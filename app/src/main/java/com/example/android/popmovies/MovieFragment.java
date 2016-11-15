@@ -21,9 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
-import com.example.android.popmovies.service.MovieService;
+import com.example.android.popmovies.sync.MovieSyncAdapter;
 
 import static com.example.android.popmovies.data.MovieContract.MovieEntry;
 
@@ -84,29 +83,30 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
     private void fetchMovie() {
-        String SORT_BY = null;
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString("sort", "Popular").equals("Popular")) {
-            mSort_By = "Popular";
-            SORT_BY = "popular";
-        } else if (PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString("sort", "Popular").equals("Top rated")) {
-            SORT_BY = "top_rated";
-            mSort_By = "Top rated";
-        } else {
-            Log.d("sort", "sort by not found:" +
-                    PreferenceManager.getDefaultSharedPreferences(getActivity())
-                            .getString("sort", "Popular"));
-        }
-        if (isOnline()){
-            Intent intent = new Intent(getActivity(), MovieService.class);
-            intent.putExtra(MovieService.SORT_BY_EXTRA,
-                    SORT_BY);
-            getActivity().startService(intent);
-        }else {
-            Toast.makeText(getActivity(),"there is no internet",Toast.LENGTH_LONG).show();
-        }
-
+//        String SORT_BY = null;
+//        if (PreferenceManager.getDefaultSharedPreferences(getActivity())
+//                .getString("sort", "Popular").equals("Popular")) {
+//            mSort_By = "Popular";
+//            SORT_BY = "popular";
+//        } else if (PreferenceManager.getDefaultSharedPreferences(getActivity())
+//                .getString("sort", "Popular").equals("Top rated")) {
+//            SORT_BY = "top_rated";
+//            mSort_By = "Top rated";
+//        } else {
+//            Log.d("sort", "sort by not found:" +
+//                    PreferenceManager.getDefaultSharedPreferences(getActivity())
+//                            .getString("sort", "Popular"));
+//        }
+//        if (isOnline()){
+//            Intent intent = new Intent(getActivity(), MovieService.class);
+//            intent.putExtra(MovieService.SORT_BY_EXTRA,
+//                    SORT_BY);
+//            getActivity().startService(intent);
+//        }else {
+//            Toast.makeText(getActivity(),"there is no internet",Toast.LENGTH_LONG).show();
+//        }
+       // new MovieSyncAdapter().MovieSynicAdapter.syncImmediately(getActivity());
+       MovieSyncAdapter.syncImmediately(getActivity());
     }
 
     public String setmSort_By() {

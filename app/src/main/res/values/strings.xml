@@ -8,15 +8,15 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="basurl">http://api.themoviedb.org/3/movie/<xliff:g id="id">%1$s</xliff:g>?api_key=MYapi_key</string>
+    <string name="basurl">http://api.themoviedb.org/3/movie/<xliff:g id="id">%1$s</xliff:g>?api_key=501db8617ec7c369a0ccf3637fc22518</string>
     <string name="trailer_list">trailer list</string>
     <string name="review">reviews (<xliff:g id="total">%1$s</xliff:g>)</string>
-    <string name="basurl1">http://api.themoviedb.org/3/movie/<xliff:g id="id">%1$s</xliff:g>?api_key=MYapi_key</string>
+    <string name="basurl1">http://api.themoviedb.org/3/movie/<xliff:g id="id">%1$s</xliff:g>?api_key=501db8617ec7c369a0ccf3637fc22518</string>
     <string name="trailer_uri">/videos</string>
     <string name="review_uri">/reviews</string>
     <string name="favorite_list">favorite</string>
     <string name="empty_view_title_text">It\'s a bit lonely here...</string>
-
+    <string name="content_authority">com.example.android.popmovies</string>
     <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
     <string name="empty_view_subtitle_text">Get started by clicking a post</string>
     <!-- Strings related to Settings -->

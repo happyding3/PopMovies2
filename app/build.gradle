@@ -21,9 +21,9 @@ android {
         }
     }
 
-    buildTypes.each {
-        it.buildConfigField 'String', 'MY_API_KEY', "myAPIKEY"
-    }
+//    buildTypes.each {
+//        it.buildConfigField 'String', 'MY_API_KEY',"\501db8617ec7c369a0ccf3637fc22518"\"
+//    }
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

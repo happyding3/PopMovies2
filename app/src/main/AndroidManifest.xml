@@ -32,12 +32,39 @@
                 android:value=".MainActivity" />
         </activity>
 
-
-<service android:name=".service.MovieService"/>
         <provider
             android:name=".data.MovieProvider"
-            android:authorities="com.example.android.popmovies"
-            android:exported="false" />
+            android:authorities="@string/content_authority"
+            android:exported="false"
+            android:syncable="true"/>
+
+        <service android:name=".sync.MovieAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AbstractAccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AbstractAccountAuthenticator"
+                android:resource="@xml/authenticator" />
+            <provider
+                android:name=".data.MovieProvider"
+                android:authorities="@string/content_authority"
+                android:exported="true"
+                android:syncable="true"/>
+        </service>
+
+        <service android:name=".sync.MovieSyncService"
+            android:exported="true"
+            android:process=":sync">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+        <meta-data
+            android:name="android.content.SyncAdapter"
+            android:resource="@xml/moviesyncadapter"/>
+            </service>
+
+
+
     </application>
 
 </manifest>
