@@ -3,11 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <ListPreference
-        android:defaultValue="@string/pref_sort_rate"
+        android:defaultValue="@string/pref_sort_pop"
         android:entries="@array/pref_sort_options"
         android:entryValues="@array/pref_sort_value"
         android:key="sort"
         android:title="sort" />
-
 
 </PreferenceScreen>

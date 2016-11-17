@@ -1,6 +1,7 @@
 package com.example.android.popmovies;
 
-import android.content.ActivityNotFoundException;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,7 +22,10 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popmovies.cursorAdapter.ReviewCursorAdapter;
+import com.example.android.popmovies.cursorAdapter.TrailerCursorAdapter;
 import com.example.android.popmovies.data.MovieContract.ReviewEntry;
 import com.example.android.popmovies.data.MovieContract.TrailerEntry;
 import com.squareup.picasso.Picasso;
@@ -30,10 +34,13 @@ import static com.example.android.popmovies.data.MovieContract.MovieEntry;
 
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    static final String DETAIL_MOVIEID = "movieID";
     private static final int MovieLoader = 0;
     private static final int ReviewLoader = 1;
     private static final int TrailerLoader = 2;
-    static final String DETAIL_MOVIEID = "movieID";
+    private static final String SELECTED_KEY = "selected_position";
+    final int FAVORITE = 1;
+    final int UNFAVORITE = 0;
     TextView mTitle;
     ImageView mPoster;
     TextView mReleaseDate;
@@ -47,11 +54,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     String movieID;
     CheckBox mFavoriteCheckBox;
     private int mPosition = ListView.INVALID_POSITION;
-    private static final String SELECTED_KEY = "selected_position";
     private TrailerCursorAdapter trailerCursorAdapter;
     private ReviewCursorAdapter reviewCursorAdapter;
-    final int FAVORITE = 1;
-    final int UNFAVORITE = 0;
 
     public DetailFragment() {
 
@@ -115,9 +119,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 } else {
                     values.put(MovieEntry.COLUMN_FAVORITE, UNFAVORITE);
                 }
-                getContext().getContentResolver().update(uri_movie, values, MovieEntry.COLUMN_ID, selectionArgs);
-                getContext().getContentResolver().update(uri_review, values, ReviewEntry.COLUMN_ID, selectionArgs);
-                getContext().getContentResolver().update(uri_trailer, values, TrailerEntry.COLUMN_ID, selectionArgs);
+                ContentResolver contentResolver = getContext().getContentResolver();
+                final AsyncQueryHandler handler = new AsyncQueryHandler(contentResolver) {
+                };
+
+                handler.startUpdate(0, null, uri_movie, values, MovieEntry.COLUMN_ID, selectionArgs);
             }
         });
         mTrailerButton.setOnClickListener(new View.OnClickListener() {
@@ -260,10 +266,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("http://www.youtube.com/watch?v=" + id));
-        try {
+        if (appIntent.resolveActivity(getContext().getPackageManager()) != null) {
+
             startActivity(appIntent);
-        } catch (ActivityNotFoundException ex) {
+        } else if (webIntent.resolveActivity(getContext().getPackageManager()) != null) {
             startActivity(webIntent);
+        } else {
+            String toastText = "can't find APP to open youtube links";
+            Toast.makeText(getContext(), toastText, Toast.LENGTH_LONG).show();
+
+
         }
     }
 

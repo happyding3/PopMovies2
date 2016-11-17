@@ -3,12 +3,10 @@ package com.example.android.popmovies;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -21,30 +19,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 
+import com.example.android.popmovies.cursorAdapter.MovieCursorAdapter;
 import com.example.android.popmovies.sync.MovieSyncAdapter;
 
+import static android.R.attr.id;
 import static com.example.android.popmovies.data.MovieContract.MovieEntry;
 
 
 public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    MovieCursorAdapter adapter;
     private static final int cursorLoader = 2;
     private static final int FAVORITELOADER = 1;
+    private static final String SELECTOR_KEY = "selector key";
+    private static final String FAVORITE_KEY = "favorite key";
+    private static final String MovieId_KEY = "movieId key";
+    MovieCursorAdapter adapter;
     String mSort_By;
+    OnMovieFragmentSelectedListener mCallback;
+    Cursor cursor;
+    Cursor favoriteCoursor;
+    String mMovieID;
+    LinearLayout linlaHeaderProgress;
     private GridView gridView;
     private int mPosition = GridView.INVALID_POSITION;
-    private static final String SELECTOR_KEY = "selector key";
-    OnMovieFragmentSelectedListener mCallback;
     private int favoriteOrNormal = 0;
-
     public MovieFragment() {
 
     }
 
-    public interface OnMovieFragmentSelectedListener {
-        void onMovieSelected(String movieId);
-    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,10 +56,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         Log.e("fetchMovie();", "yunxingle");
 
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.main, menu);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -65,53 +70,28 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             return true;
         } else if (id == R.id.favorite_list) {
             if (favoriteOrNormal == 0) {
+                favoriteOrNormal = 1;
                 getLoaderManager().initLoader(FAVORITELOADER, null, this);
                 Log.e("case cursorLoader:", "RUN");
-                favoriteOrNormal = 1;
+
             } else {
-                getLoaderManager().restartLoader(cursorLoader, null, this);
                 favoriteOrNormal = 0;
+                getLoaderManager().restartLoader(cursorLoader, null, this);
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return cm.getActiveNetworkInfo() != null &&
-                cm.getActiveNetworkInfo().isConnectedOrConnecting();
-    }
     private void fetchMovie() {
-//        String SORT_BY = null;
-//        if (PreferenceManager.getDefaultSharedPreferences(getActivity())
-//                .getString("sort", "Popular").equals("Popular")) {
-//            mSort_By = "Popular";
-//            SORT_BY = "popular";
-//        } else if (PreferenceManager.getDefaultSharedPreferences(getActivity())
-//                .getString("sort", "Popular").equals("Top rated")) {
-//            SORT_BY = "top_rated";
-//            mSort_By = "Top rated";
-//        } else {
-//            Log.d("sort", "sort by not found:" +
-//                    PreferenceManager.getDefaultSharedPreferences(getActivity())
-//                            .getString("sort", "Popular"));
-//        }
-//        if (isOnline()){
-//            Intent intent = new Intent(getActivity(), MovieService.class);
-//            intent.putExtra(MovieService.SORT_BY_EXTRA,
-//                    SORT_BY);
-//            getActivity().startService(intent);
-//        }else {
-//            Toast.makeText(getActivity(),"there is no internet",Toast.LENGTH_LONG).show();
-//        }
-       // new MovieSyncAdapter().MovieSynicAdapter.syncImmediately(getActivity());
-       MovieSyncAdapter.syncImmediately(getActivity());
+        MovieSyncAdapter.syncImmediately(getActivity());
+        Log.e("fetchMovie()", "RUN");
     }
 
     public String setmSort_By() {
         String mSort_by = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString("sort", "Popular");
+        mSort_By = mSort_by;
         String sortOrder;
         if (mSort_by.equals("Popular")) {
             sortOrder = MovieEntry.COLUMN_POPULARITY + " DESC";
@@ -126,19 +106,27 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         super.onResume();
         String Sort_by = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString("sort", "Popular");
+        Log.e("onResume();", "RUN");
         if (Sort_by != null && !Sort_by.equals(mSort_By)) {
             onSortByChanged();
             Log.e("onSortByChanged();", "RUN");
         }
     }
+
     void onSortByChanged() {
         fetchMovie();
-        getLoaderManager().restartLoader(cursorLoader, null, this);
+        if (favoriteOrNormal == 1) {
+            getLoaderManager().restartLoader(FAVORITELOADER, null, null);
+        } else {
+            getLoaderManager().restartLoader(cursorLoader, null, this);
+        }
     }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView;
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
         adapter = new MovieCursorAdapter(getActivity(), null);
+        linlaHeaderProgress = (LinearLayout) rootView.findViewById(R.id.linlaHeaderProgress);
         gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -151,9 +139,22 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 int movieEntryId = cursor.getInt(idIndex);
                 Log.e("movieEntryId=" + movie_id, ",long id=" + id);
                 mPosition = position;
+                mMovieID = movie_id;
                 mCallback.onMovieSelected(movie_id);
             }
         });
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(SELECTOR_KEY)) {
+                mPosition = savedInstanceState.getInt(SELECTOR_KEY);
+            }
+            if (savedInstanceState.containsKey(FAVORITE_KEY)) {
+                favoriteOrNormal = savedInstanceState.getInt(FAVORITE_KEY);
+            }
+            if (savedInstanceState.containsKey(MovieId_KEY)) {
+                mMovieID = savedInstanceState.getString(MovieId_KEY);
+            }
+        }
+        Log.e("favoriteOrNormal", "=" + favoriteOrNormal);
         return rootView;
     }
 
@@ -167,17 +168,27 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     + " must implement OnMovieFragmentSelectedListener");
         }
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (mPosition != GridView.INVALID_POSITION) {
             outState.putInt(SELECTOR_KEY, mPosition);
         }
+        outState.putInt(FAVORITE_KEY, favoriteOrNormal);
+        outState.putString(MovieId_KEY, mMovieID);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(cursorLoader, null, this);
+        if (favoriteOrNormal == 1) {
+            getLoaderManager().restartLoader(FAVORITELOADER, null, this);
+            Log.e("case cursorLoader:", "RUN");
+
+        } else {
+            getLoaderManager().restartLoader(cursorLoader, null, this);
+
+        }
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -193,7 +204,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         String sortOrder = setmSort_By();
         String selector = MovieEntry.COLUMN_FAVORITE;
         String[] selectorArgs = {"1"};
-
+        linlaHeaderProgress.setVisibility(View.VISIBLE);
         switch (id) {
             case cursorLoader:
                 Log.e("case cursorLoader:", "RUN");
@@ -222,12 +233,36 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+        int loaderId = loader.getId();
+        linlaHeaderProgress.setVisibility(View.GONE);
+        if (loaderId == cursorLoader && favoriteOrNormal == 0) {
+            cursor = data;
+            adapter.swapCursor(data);
+            if (mMovieID == null) {
+                if (data.moveToFirst()) {
+                    int IdColumnIndex = cursor.getColumnIndexOrThrow(MovieEntry.COLUMN_ID);
+                    String movie_id = cursor.getString(IdColumnIndex);
+                    Log.e("movieEntryId=" + movie_id, ",long id=" + id);
+                    mCallback.onMovieSelected(movie_id);
+                }
+            }
+        } else if (loaderId == FAVORITELOADER && favoriteOrNormal == 1) {
+            favoriteCoursor = data;
+            adapter.swapCursor(data);
+
+        }
+        if (mPosition != GridView.INVALID_POSITION) {
+            gridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.swapCursor(null);
+    }
+
+    public interface OnMovieFragmentSelectedListener {
+        void onMovieSelected(String movieId);
     }
 
 }

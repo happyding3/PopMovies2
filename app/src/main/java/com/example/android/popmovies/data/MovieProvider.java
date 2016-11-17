@@ -21,7 +21,6 @@ import static com.example.android.popmovies.data.MovieContract.TrailerEntry;
 
 public class MovieProvider extends ContentProvider {
     public static final String LOG_TAG = MovieProvider.class.getSimpleName();
-    private MovieDbHelper movieDbHelper;
     private static final int MOVIES = 100;
     private static final int MOVIE_ID = 101;
     private static final int TRAILER = 200;
@@ -29,6 +28,7 @@ public class MovieProvider extends ContentProvider {
     private static final int REVIEW = 300;
     private static final int REVIEWWITHMOVIEID = 301;
     private static final UriMatcher mUriMatcher = buildUriMatcher();
+    private MovieDbHelper movieDbHelper;
 
 //    private static final SQLiteQueryBuilder mMovieTrailerReviewBuilder;
 //    static {
@@ -37,7 +37,6 @@ public class MovieProvider extends ContentProvider {
 //                MovieEntry.TABLE_NAME+" ON "+TrailerEntry.TABLE_NAME+"."+
 //                TrailerEntry.COLUMN_LOC_KEY+" = "+MovieEntry.TABLE_NAME+"."+MovieEntry._ID
 //        );}
-
 
     static UriMatcher buildUriMatcher() {
         // 1) The code passed into the constructor represents the code to return for the root
@@ -152,6 +151,65 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        int match = mUriMatcher.match(uri);
+        SQLiteDatabase database = movieDbHelper.getWritableDatabase();
+        switch (match) {
+            case MOVIES:
+                database.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = database.insert(MovieEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    database.setTransactionSuccessful();
+                } finally {
+                    database.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case REVIEW:
+                database.beginTransaction();
+                int returnCountR = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = database.insert(ReviewEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCountR++;
+                        }
+                    }
+                    database.setTransactionSuccessful();
+                } finally {
+                    database.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCountR;
+            case TRAILER:
+                database.beginTransaction();
+                int returnCountT = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = database.insert(TrailerEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCountT++;
+                        }
+                    }
+                    database.setTransactionSuccessful();
+                } finally {
+                    database.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCountT;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+
+    }
+
+    @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
@@ -181,6 +239,7 @@ public class MovieProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+        getContext().getContentResolver().notifyChange(uri, null);
         return updateRows;
     }
 }

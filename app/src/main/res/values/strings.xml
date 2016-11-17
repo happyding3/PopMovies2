@@ -1,6 +1,6 @@
 <resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
     <string name="app_name">Pop Movies</string>
-<string name="sync_account_type">com.example.android.popmovies</string>
+    <string name="sync_account_type">com.example.android.popmovies</string>
     <string name="action_setting">setting</string>
     <string name="pref_sort_pop">Popular</string>
     <string name="pref_sort_rate">Top rated</string>
@@ -8,10 +8,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="basurl">http://api.themoviedb.org/3/movie/<xliff:g id="id">%1$s</xliff:g>?api_key=501db8617ec7c369a0ccf3637fc22518</string>
     <string name="trailer_list">trailer list</string>
     <string name="review">reviews (<xliff:g id="total">%1$s</xliff:g>)</string>
-    <string name="basurl1">http://api.themoviedb.org/3/movie/<xliff:g id="id">%1$s</xliff:g>?api_key=501db8617ec7c369a0ccf3637fc22518</string>
     <string name="trailer_uri">/videos</string>
     <string name="review_uri">/reviews</string>
     <string name="favorite_list">favorite</string>
@@ -41,4 +39,5 @@
 
     <!--<string name="pref_title_ringtone">Ringtone</string>--><!--<string name="pref_ringtone_silent">Silent</string>-->
 
-    <!--<string name="pref_title_vibrate">Vibrate</string>--></resources>
+    <!--<string name="pref_title_vibrate">Vibrate</string>-->
+</resources>

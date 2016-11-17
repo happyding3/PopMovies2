@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.android.popmovies.sync.MovieSyncAdapter;
+
 import java.io.IOException;
 
 
@@ -26,8 +28,9 @@ public class MainActivity extends AppCompatActivity implements MovieFragment.OnM
                         .commit();}
         }else {
             mTwoPane=false;
-
-        }}
+        }
+        MovieSyncAdapter.initializeSyncAdapter(this);
+    }
     public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_STATS" />
 
     <application
         android:allowBackup="true"
@@ -34,27 +35,21 @@
 
         <provider
             android:name=".data.MovieProvider"
-            android:authorities="@string/content_authority"
+            android:authorities="com.example.android.popmovies"
             android:exported="false"
             android:syncable="true"/>
 
         <service android:name=".sync.MovieAuthenticatorService">
             <intent-filter>
-                <action android:name="android.accounts.AbstractAccountAuthenticator" />
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
             <meta-data
-                android:name="android.accounts.AbstractAccountAuthenticator"
+                android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
-            <provider
-                android:name=".data.MovieProvider"
-                android:authorities="@string/content_authority"
-                android:exported="true"
-                android:syncable="true"/>
         </service>
 
         <service android:name=".sync.MovieSyncService"
-            android:exported="true"
-            android:process=":sync">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
             </intent-filter>

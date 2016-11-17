@@ -13,6 +13,7 @@ public class MovieSyncService extends Service {
 private static final Object sSyncAdapterLock=new Object();
     private static MovieSyncAdapter sMovieSyncAdapter=null;
 
+
     @Override
     public void onCreate() {
 
