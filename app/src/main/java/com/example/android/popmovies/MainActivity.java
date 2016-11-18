@@ -1,21 +1,21 @@
 package com.example.android.popmovies;
 
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.android.popmovies.sync.MovieSyncAdapter;
 
-import java.io.IOException;
-
 
 public class MainActivity extends AppCompatActivity implements MovieFragment.OnMovieFragmentSelectedListener{
     private static final String DETAILFRAGMENT_TAG= "DFTAG";
     private boolean mTwoPane;
+
+    public boolean getPane() {
+        return mTwoPane;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,26 +31,7 @@ public class MainActivity extends AppCompatActivity implements MovieFragment.OnM
         }
         MovieSyncAdapter.initializeSyncAdapter(this);
     }
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return cm.getActiveNetworkInfo() != null &&
-                cm.getActiveNetworkInfo().isConnectedOrConnecting();
-    }
-    public boolean isOnline1() {
-
-        Runtime runtime = Runtime.getRuntime();
-        try {
-
-            Process ipProcess = runtime.exec("/system/bin/ping -c" + "www.themoviedb.org");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-
-        } catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
-
-        return false;
-    }
 
     @Override
     public void onMovieSelected(String movieId) {

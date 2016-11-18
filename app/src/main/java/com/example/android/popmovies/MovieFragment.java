@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.example.android.popmovies.cursorAdapter.MovieCursorAdapter;
 import com.example.android.popmovies.sync.MovieSyncAdapter;
@@ -41,6 +42,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     Cursor favoriteCoursor;
     String mMovieID;
     LinearLayout linlaHeaderProgress;
+    ProgressBar progressBar;
     private GridView gridView;
     private int mPosition = GridView.INVALID_POSITION;
     private int favoriteOrNormal = 0;
@@ -126,7 +128,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         View rootView;
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
         adapter = new MovieCursorAdapter(getActivity(), null);
-        linlaHeaderProgress = (LinearLayout) rootView.findViewById(R.id.linlaHeaderProgress);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.pbHeaderProgress);
         gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -204,7 +206,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         String sortOrder = setmSort_By();
         String selector = MovieEntry.COLUMN_FAVORITE;
         String[] selectorArgs = {"1"};
-        linlaHeaderProgress.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        gridView.setVisibility(View.GONE);
         switch (id) {
             case cursorLoader:
                 Log.e("case cursorLoader:", "RUN");
@@ -234,11 +237,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         int loaderId = loader.getId();
-        linlaHeaderProgress.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+        gridView.setVisibility(View.VISIBLE);
         if (loaderId == cursorLoader && favoriteOrNormal == 0) {
             cursor = data;
             adapter.swapCursor(data);
-            if (mMovieID == null) {
+            MainActivity mainActivity = new MainActivity();
+            if (mMovieID == null && mainActivity.getPane()) {
                 if (data.moveToFirst()) {
                     int IdColumnIndex = cursor.getColumnIndexOrThrow(MovieEntry.COLUMN_ID);
                     String movie_id = cursor.getString(IdColumnIndex);

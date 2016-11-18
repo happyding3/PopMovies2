@@ -17,6 +17,7 @@
     <string name="content_authority">com.example.android.popmovies</string>
     <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
     <string name="empty_view_subtitle_text">Get started by clicking a post</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings --><!--<string name="pref_header_general">General</string>-->
